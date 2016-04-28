@@ -137,7 +137,10 @@ def p_exp_call(p):
 
 def p_quoted_list(p):
     'quoted_list : QUOTE list'
-    p[0] = p[2]
+    #p[0] = p[2]
+    #p[0] = [p[1]] + p[2]
+    p[0] = ['quote'] + [p[2]]
+    #print "Quote p[0] is: ", p[0]
 
 def p_list(p):
     'list : LPAREN items RPAREN'
@@ -146,6 +149,7 @@ def p_list(p):
 def p_items(p):
     'items : item items'
     p[0] = [p[1]] + p[2]
+
 
 def p_items_empty(p):
     'items : empty'
@@ -179,8 +183,8 @@ def p_call(p):
     'call : LPAREN SIMB items RPAREN'
     global ast
     if DEBUG: print "Calling", p[2], "with", p[3]
-    if isinstance(p[3],list) and isinstance(p[3][0],list) and p[3][0][0] == "'":
-        p[3] = [["quote"] + [p[3][0][1:]]]
+    #if isinstance(p[3],list) and isinstance(p[3][0],list) and p[3][0][0] == "'":
+       # p[3] = [["quote"] + [p[3][0][1:]]]
     ast = [p[2]]+[i for i in p[3]]
     print "ast is: ", ast
     p[0] = ast
