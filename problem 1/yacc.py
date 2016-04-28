@@ -116,10 +116,14 @@ def let(l):
 name['let'] = let
 
 def _if(l):
-    if l[0]:
-        return l[1]
+    if len(l) != 3:
+        a =  'error input'
+        return a
     else:
-        return l[2]
+        if l[0]:
+            return l[1]
+        else:
+            return l[2]
 
 name['if'] = _if
 
