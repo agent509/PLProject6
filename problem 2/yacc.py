@@ -177,8 +177,14 @@ def p_item_empty(p):
 
 def p_call(p):
     'call : LPAREN SIMB items RPAREN'
-    if DEBUG: print "Calling", p[2], "with", p[3] 
-    p[0] = lisp_eval(p[2], p[3])   
+    global ast
+    if DEBUG: print "Calling", p[2], "with", p[3]
+    if isinstance(p[3],list) and isinstance(p[3][0],list) and p[3][0][0] == "'":
+        p[3] = [["quote"] + [p[3][0][1:]]]
+    ast = [p[2]]+[i for i in p[3]]
+    print "ast is: ", ast
+    p[0] = ast
+    #p[0] = lisp_eval(p[2], p[3])
 
 def p_atom_simbol(p):
     'atom : SIMB'
