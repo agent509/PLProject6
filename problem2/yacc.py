@@ -57,75 +57,15 @@ def cond(l):
 name['cond'] = cond
 
 def add(l):
-    m = "error for undefine element"
-    for i in range (len(l)):
-        if isinstance(l[i], str):
-            return m
-        else:
-            pass
     return sum(l)
 
 name['+'] = add
 
 def minus(l):
-    if isinstance(l[0], str):
-        mi = "error for undefine element"
-        return mi
-    else:
-        mi = l[0]
-        for i in range (len(l)-1):
-            if isinstance(l[i+1], str):
-               mi = "error for undefine element"
-               return mi
-            else:
-               mi = mi - l[i+1]
-        return mi
+    '''Unary minus'''
+    return -l[0]
 
 name['-'] = minus
-
-def multiply(l):
-    m = 1
-    for i in range (len(l)):
-        if isinstance(l[i], str):
-           m = 'error for undefine element'
-        else:
-           m = m * l[i]
-    return m
-    #return reduce(lambda x, y: x*y, l)
-
-name['*'] = multiply
-
-def division(l):
-    m = l[0]
-    for i in range (len(l)-1):
-        if l[i+1] == 0 or isinstance(l[i+1], str):
-            m = "error in denominator"
-            return m
-        else:
-            m = m / l[i+1]
-    return m
-
-name['/'] = division
-
-def let(l):
-    if len(l) == 1:
-        return l[0]
-    else:
-        return l[1]
-
-name['let'] = let
-
-def _if(l):
-    if len(l) != 3:
-        a =  'error input'
-        return a
-    else:
-        if l[0]:
-            return l[1]
-        else:
-            return l[2]
-
-name['if'] = _if
 
 def _print(l):
     print lisp_str(l[0])
@@ -133,18 +73,16 @@ def _print(l):
 name['print'] = _print
 
 #  Evaluation functions
-let = {}
+
 def lisp_eval(simb, items):
     if simb in name:
         return call(name[simb], eval_lists(items))
     else:
-        let[simb] = items[0]
-        return simb
-
+       return [simb] + items
 
 def call(f, l):
     try:
-        return f(eval_lists(l))
+        return f(eval_lists(l))  
     except TypeError:
         return f
 
@@ -157,11 +95,7 @@ def eval_lists(l):
             else:
                 r.append(i)
         else:
-            if i in let.keys():
-                r.append(let[i])
-            else:
-                r.append(i)
-    let.clear()
+            r.append(i)
     return r
 
 # Utilities functions
@@ -203,7 +137,10 @@ def p_exp_call(p):
 
 def p_quoted_list(p):
     'quoted_list : QUOTE list'
-    p[0] = p[2]
+    #p[0] = p[2]
+    #p[0] = [p[1]] + p[2]
+    p[0] = ['quote'] + [p[2]]
+    #print "Quote p[0] is: ", p[0]
 
 def p_list(p):
     'list : LPAREN items RPAREN'
@@ -212,6 +149,7 @@ def p_list(p):
 def p_items(p):
     'items : item items'
     p[0] = [p[1]] + p[2]
+
 
 def p_items_empty(p):
     'items : empty'
@@ -232,7 +170,7 @@ def p_item_list(p):
 def p_item_list(p):
     'item : quoted_list'
     p[0] = p[1]
-
+        
 def p_item_call(p):
     'item : call'
     p[0] = p[1]
@@ -243,8 +181,14 @@ def p_item_empty(p):
 
 def p_call(p):
     'call : LPAREN SIMB items RPAREN'
+    global ast
     if DEBUG: print "Calling", p[2], "with", p[3]
-    p[0] = lisp_eval(p[2], p[3])
+    #if isinstance(p[3],list) and isinstance(p[3][0],list) and p[3][0][0] == "'":
+       # p[3] = [["quote"] + [p[3][0][1:]]]
+    ast = [p[2]]+[i for i in p[3]]
+    print "ast is: ", ast
+    p[0] = ast
+    #p[0] = lisp_eval(p[2], p[3])
 
 def p_atom_simbol(p):
     'atom : SIMB'
@@ -262,7 +206,7 @@ def p_atom_word(p):
     'atom : TEXT'
     p[0] = p[1]
 
-def p_atom_empty(p):
+def p_atom_empty(p): 
     'atom :'
     pass
 
@@ -288,6 +232,3 @@ def p_error(p):
 yacc.yacc()
 
 
-#(let (a 3) (+ 3 a))
-#(dummy (b 4) (+5 dummy))
-#(if true 3 4)

@@ -34,17 +34,16 @@ class MiniLisp(cmd.Cmd):     # See https://docs.python.org/2/library/cmd.html
            In that case we execute the line as Python code.
         """
         result = yacc.parse(line)
+        print "result is: ", result
+        import lis
+        print lis.eval(result)
+
+        '''
         s = lisp_str(result)
         if s != 'nil':
             print s
+        '''
 
 if __name__ == '__main__':
         ml = MiniLisp()
         ml.cmdloop()     # See https://docs.python.org/2/library/cmd.html
-
-# try these codes
-# (+ 1 2 3)
-# (car '(1 2 3 4 5))
-# (cdr '(1 2 3 4 5))
-# (cons 6 '(1 2 3 4))
-# (+ 4 (car '(1 2 3 4)))
